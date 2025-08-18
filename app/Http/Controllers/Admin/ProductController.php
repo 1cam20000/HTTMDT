@@ -106,13 +106,4 @@ class ProductController extends Controller
         return redirect()->route('products.index')
             ->with('success', 'Product deleted successfully.');
     }
-
-    /**
-     * Display a normal view of the products.
-     */
-    public function show_normal()
-    {
-        // Trả về một view hoặc dữ liệu tuỳ ý
-        return view('products.normal');
-    }
 }
