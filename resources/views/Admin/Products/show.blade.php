@@ -31,7 +31,7 @@
     </div>
 
     <div class="form-group">
-        <strong>Danh mục:</strong> {{ $product->category->name }}
+        <strong>Danh mục:</strong> {{ $product->category ? $product->category->name : 'Chưa có danh mục' }}
     </div>
     <div class="form-group">
         <strong>Hình ảnh:</strong>

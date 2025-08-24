@@ -14,7 +14,7 @@
                     <h5 class="card-title">{{ $product->name }}</h5>
                     <p class="card-text">{{ $product->description }}</p>
                     <p><strong>Giá:</strong> {{ number_format($product->price, 0) }} VNĐ</p>
-                    <a href="{{ route('products.show', $product->id) }}" class="btn btn-primary">Xem chi tiết</a>
+                    <a href="{{ route('user.products.show', $product->id) }}" class="btn btn-primary">Xem chi tiết</a>
                 </div>
             </div>
         </div>

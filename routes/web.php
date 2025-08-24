@@ -8,7 +8,8 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\User\ProductController as UserProductController;
-use App\Http\Controllers\User\CategoryController as UserCategoryController;
+use App\Http\Controllers\Admin\CategoryController as UserCategoryController;
+
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\Auth\AuthController;
@@ -73,15 +74,18 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 // 🙋 USER ROUTES
 // =====================
 Route::middleware(['auth', 'verified'])->prefix('user')->name('user.')->group(function () {
-    // Danh mục (chỉ xem)
-    // Route::get('/categories', [UserCategoryController::class, 'index'])->name('categories.index');
+
+    Route::get('/categories', [UserCategoryController::class, 'index'])->name('categories.index');
 
     // Sản phẩm (chỉ xem + chi tiết)
     Route::get('/products', [UserProductController::class, 'index'])->name('products.index');
-    Route::get('/products/{product}', [UserProductController::class, 'show'])->name('products.show');
+    Route::get('/products/{id}', [UserProductController::class, 'show'])->name('products.show');
 
     // Giỏ hàng
-    // Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 
     // Lịch sử đơn hàng
     // Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
