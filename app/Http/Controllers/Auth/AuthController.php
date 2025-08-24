@@ -19,20 +19,26 @@ class AuthController extends Controller
     // Xử lý đăng ký
     public function register(Request $request)
     {
-        $request->validate([
+        $data=$request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        User::create([
+        $user=User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
             'role'     => 'customer', // mặc định
         ]);
+        
+        $user->sendEmailVerificationNotification();
 
-        return redirect()->route('login')->with('success', 'Đăng ký thành công! Vui lòng đăng nhập.');
+        Auth::login($user);
+
+        return redirect()->route('verification.notice')->with('success', 'Kiểm tra email của bạn để xác minh tài khoản.');
+
+        // return redirect()->route('login')->with('success', 'Đăng ký thành công! Vui lòng đăng nhập.');
     }
 
     // Hiển thị form đăng nhập
