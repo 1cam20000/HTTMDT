@@ -35,7 +35,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
         Category::create($request->all());
-        return redirect()->route('categories.index')->with('success', 'Category created successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
     }
 
     /**
@@ -63,7 +63,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
         $category->update($request->all());
-        return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
     }
 
     /**
@@ -72,7 +72,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         $category->delete();
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }
 
     // Người dùng thường chỉ xem sản phẩm

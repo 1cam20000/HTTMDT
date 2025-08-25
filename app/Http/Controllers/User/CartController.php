@@ -2,62 +2,114 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Http\Controllers\Controller;
 
 class CartController extends Controller
 {
-    // Hiển thị giỏ hàng
+    /**
+     * Hiển thị giỏ hàng
+     */
     public function index()
     {
-        $cart = session('cart', []);
-        $total = 0;
-        foreach ($cart as $item) {
-            $total += $item['price'] * $item['quantity'];
+        $cart = session()->get('cart', []);
+        $total = 0.0;
+
+        foreach ($cart as $row) {
+            $price = (float) ($row['price'] ?? 0);
+            $qty   = (int)   ($row['quantity'] ?? 0);
+            $total += $price * $qty;
         }
-        return view('cart.index', compact('cart', 'total'));
+
+        // View đúng thư mục user/cart
+        return view('user.cart.index', compact('cart', 'total'));
     }
 
-    // Thêm sản phẩm vào giỏ
-    public function add(Request $request)
+    /**
+     * Thêm sản phẩm vào giỏ
+     * Route: POST /user/cart/add/{product}  -> name: user.cart.add
+     * Lấy {product} bằng route model binding
+     */
+    public function add(Request $request, Product $product)
     {
-        $product = Product::findOrFail($request->product_id);
-        $cart = session('cart', []);
+        // Nếu không truyền quantity thì mặc định là 1
+        $qty = (int) $request->input('quantity', 1);
+        if ($qty < 1) {
+            $qty = 1;
+        }
+
+        $cart = session()->get('cart', []);
+
         if (isset($cart[$product->id])) {
-            $cart[$product->id]['quantity'] += $request->quantity;
+            $cart[$product->id]['quantity'] += $qty;
         } else {
             $cart[$product->id] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->price,
-                'quantity' => $request->quantity,
-                'image' => $product->image
+                'name'     => $product->name,
+                'price'    => (float)$product->price,
+                'quantity' => $qty,
+                'category' => optional($product->category)->name,
+                'image'    => $product->image,
             ];
         }
-        session(['cart' => $cart]);
-        return redirect()->route('user.cart.index');
+
+        session()->put('cart', $cart);
+
+        // Chuyển đến trang giỏ hàng và hiển thị thông báo thành công
+        return redirect()->route('user.cart.index')->with('success', 'Đã thêm vào giỏ hàng.');
     }
 
-    // Cập nhật số lượng sản phẩm
-    public function update(Request $request)
+    /**
+     * Cập nhật số lượng 1 item trong giỏ
+     * Route: PATCH /user/cart/{id}  -> name: user.cart.update
+     * $id là product_id trong giỏ (key của mảng session)
+     */
+    public function update(Request $request, $id)
     {
-        $cart = session('cart', []);
-        $productId = $request->product_id;
-        if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] = $request->quantity;
-            session(['cart' => $cart]);
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ], [
+            'quantity.required' => 'Vui lòng nhập số lượng.',
+            'quantity.integer'  => 'Số lượng phải là số nguyên.',
+            'quantity.min'      => 'Số lượng tối thiểu là 1.'
+        ]);
+
+        $cart = session()->get('cart', []);
+
+        if (!isset($cart[$id])) {
+            return redirect()->route('user.cart.index')->with('error', 'Sản phẩm không có trong giỏ.');
         }
-        return redirect()->route('user.cart.index');
+
+        $cart[$id]['quantity'] = (int)$request->quantity;
+        session()->put('cart', $cart);
+
+        return redirect()->route('user.cart.index')->with('success', 'Cập nhật giỏ hàng thành công.');
     }
 
-    // Xóa sản phẩm khỏi giỏ
-    public function remove(Request $request)
+    /**
+     * Xoá 1 sản phẩm khỏi giỏ
+     * Route: DELETE /user/cart/remove/{product}  -> name: user.cart.remove
+     */
+    public function remove(Product $product)
     {
-        $cart = session('cart', []);
-        $productId = $request->product_id;
-        unset($cart[$productId]);
-        session(['cart' => $cart]);
-        return redirect()->route('user.cart.index');
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$product->id])) {
+            unset($cart[$product->id]);
+            session()->put('cart', $cart);
+            return redirect()->route('user.cart.index')->with('success', 'Đã xoá sản phẩm khỏi giỏ.');
+        }
+
+        return redirect()->route('user.cart.index')->with('error', 'Sản phẩm không tồn tại trong giỏ.');
+    }
+
+    /**
+     * Xoá toàn bộ giỏ
+     * Route: DELETE /user/cart/clear  -> name: user.cart.clear
+     */
+    public function clear()
+    {
+        session()->forget('cart');
+        return redirect()->route('user.cart.index')->with('success', 'Đã xoá toàn bộ giỏ hàng.');
     }
 }

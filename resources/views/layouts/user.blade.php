@@ -33,8 +33,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Trang chủ</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('user.categories.index') }}">📂 Danh mục</a></li>
+        {{-- <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Trang chủ</a></li> --}}
+        {{-- <li class="nav-item"><a class="nav-link" href="{{ route('user.categories.index') }}">📂 Danh mục</a></li> --}}
+        <li class="nav-item"><a class="nav-link" href="{{ route('user.products.index') }}">🛍️ Sản phẩm</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('user.cart.index') }}">🛒 Giỏ hàng</a></li>
         @auth
           <li class="nav-item">
