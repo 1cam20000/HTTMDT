@@ -11,7 +11,7 @@
     <div class="alert alert-danger">{{ session('error') }}</div>
   @endif
 
-  @if(!empty($cart) && count($cart) > 0)
+  @if($items->count() > 0)
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -26,24 +26,25 @@
           </tr>
         </thead>
         <tbody>
-          @foreach ($cart as $id => $details)
+          @foreach ($items as $item)
             @php
-              $price = (float)$details['price'];
-              $qty   = (int)$details['quantity'];
+              $product = $item->product;
+              $price = (float)$item->price;
+              $qty   = (int)$item->quantity;
               $sub   = $price * $qty;
             @endphp
             <tr>
               <td style="width:80px;">
-                @if(!empty($details['image']))
-                  <img src="{{ asset($details['image']) }}" alt="{{ $details['name'] }}" class="img-thumbnail" style="width:70px;height:70px;object-fit:cover;">
+                @if(!empty($product->image))
+                  <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="img-thumbnail" style="width:70px;height:70px;object-fit:cover;">
                 @else
                   <div class="text-muted">No image</div>
                 @endif
               </td>
-              <td>{{ $details['name'] }}</td>
-                <td>{{ $details['category'] ?? 'Không có danh mục' }}</td>
+              <td>{{ $product->name }}</td>
+              <td>{{ $product->category->name ?? 'Không có danh mục' }}</td>
               <td class="text-center">
-                <form action="{{ route('user.cart.update', $id) }}" method="POST" class="d-inline">
+                <form action="{{ route('user.cart.update', $item->id) }}" method="POST" class="d-inline">
                   @csrf
                   @method('PATCH')
                   <input type="number" name="quantity" value="{{ $qty }}" min="1" class="form-control d-inline" style="width:80px;">
@@ -53,7 +54,7 @@
               <td class="text-end">{{ number_format($price, 0) }} VNĐ</td>
               <td class="text-end">{{ number_format($sub, 0) }} VNĐ</td>
               <td class="text-center">
-                <form action="{{ route('user.cart.remove', $id) }}" method="POST" onsubmit="return confirm('Xoá sản phẩm này?');">
+                <form action="{{ route('user.cart.remove', $item->id) }}" method="POST" onsubmit="return confirm('Xoá sản phẩm này?');">
                   @csrf
                   @method('DELETE')
                   <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
