@@ -5,6 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Cart;
+use App\Models\CartItem;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -13,17 +16,13 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cart = session()->get('cart', []);
-        $total = 0.0;
-
-        foreach ($cart as $row) {
-            $price = (float) ($row['price'] ?? 0);
-            $qty   = (int)   ($row['quantity'] ?? 0);
-            $total += $price * $qty;
-        }
-
-        // View đúng thư mục user/cart
-        return view('user.cart.index', compact('cart', 'total'));
+        $user = Auth::user();
+        $cart = Cart::where('user_id', $user->id)->first();
+        $items = $cart ? $cart->items()->with('product')->get() : collect();
+        $total = $items->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+        return view('user.cart.index', compact('items', 'total'));
     }
 
     /**
@@ -33,29 +32,25 @@ class CartController extends Controller
      */
     public function add(Request $request, Product $product)
     {
-        // Nếu không truyền quantity thì mặc định là 1
         $qty = (int) $request->input('quantity', 1);
-        if ($qty < 1) {
-            $qty = 1;
-        }
+        if ($qty < 1) $qty = 1;
 
-        $cart = session()->get('cart', []);
+        $user = Auth::user();
+        $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+        $item = CartItem::where('cart_id', $cart->id)->where('product_id', $product->id)->first();
 
-        if (isset($cart[$product->id])) {
-            $cart[$product->id]['quantity'] += $qty;
+        if ($item) {
+            $item->quantity += $qty;
+            $item->save();
         } else {
-            $cart[$product->id] = [
-                'name'     => $product->name,
-                'price'    => (float)$product->price,
+            CartItem::create([
+                'cart_id' => $cart->id,
+                'product_id' => $product->id,
                 'quantity' => $qty,
-                'category' => optional($product->category)->name,
-                'image'    => $product->image,
-            ];
+                'price' => $product->price,
+            ]);
         }
 
-        session()->put('cart', $cart);
-
-        // Chuyển đến trang giỏ hàng và hiển thị thông báo thành công
         return redirect()->route('user.cart.index')->with('success', 'Đã thêm vào giỏ hàng.');
     }
 
@@ -74,15 +69,12 @@ class CartController extends Controller
             'quantity.min'      => 'Số lượng tối thiểu là 1.'
         ]);
 
-        $cart = session()->get('cart', []);
-
-        if (!isset($cart[$id])) {
+        $item = CartItem::find($id);
+        if (!$item) {
             return redirect()->route('user.cart.index')->with('error', 'Sản phẩm không có trong giỏ.');
         }
-
-        $cart[$id]['quantity'] = (int)$request->quantity;
-        session()->put('cart', $cart);
-
+        $item->quantity = (int)$request->quantity;
+        $item->save();
         return redirect()->route('user.cart.index')->with('success', 'Cập nhật giỏ hàng thành công.');
     }
 
@@ -92,14 +84,15 @@ class CartController extends Controller
      */
     public function remove(Product $product)
     {
-        $cart = session()->get('cart', []);
-
-        if (isset($cart[$product->id])) {
-            unset($cart[$product->id]);
-            session()->put('cart', $cart);
-            return redirect()->route('user.cart.index')->with('success', 'Đã xoá sản phẩm khỏi giỏ.');
+        $user = Auth::user();
+        $cart = Cart::where('user_id', $user->id)->first();
+        if ($cart) {
+            $item = CartItem::where('cart_id', $cart->id)->where('product_id', $product->id)->first();
+            if ($item) {
+                $item->delete();
+                return redirect()->route('user.cart.index')->with('success', 'Đã xoá sản phẩm khỏi giỏ.');
+            }
         }
-
         return redirect()->route('user.cart.index')->with('error', 'Sản phẩm không tồn tại trong giỏ.');
     }
 
@@ -109,7 +102,11 @@ class CartController extends Controller
      */
     public function clear()
     {
-        session()->forget('cart');
+        $user = Auth::user();
+        $cart = Cart::where('user_id', $user->id)->first();
+        if ($cart) {
+            $cart->items()->delete();
+        }
         return redirect()->route('user.cart.index')->with('success', 'Đã xoá toàn bộ giỏ hàng.');
     }
 }
