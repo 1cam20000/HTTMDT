@@ -1,13 +1,12 @@
-<!-- Layout user đã được load -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>shop ban vay'</title>
-  
-  <!-- Bootstrap 4 CSS -->
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop Váy Công Sở - @yield('title', 'Trang người dùng')</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
     .nav-link-btn {
@@ -26,43 +25,34 @@
 </head>
 <body>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="{{ url('/') }}">Shop váy công sở</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+    <a class="navbar-brand" href="{{ route('welcome') }}">Shop váy công sở</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarUser">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        {{-- <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Trang chủ</a></li> --}}
-        {{-- <li class="nav-item"><a class="nav-link" href="{{ route('user.categories.index') }}">📂 Danh mục</a></li> --}}
+
+    <div class="collapse navbar-collapse" id="navbarUser">
+      <ul class="navbar-nav me-auto">
         <li class="nav-item"><a class="nav-link" href="{{ route('user.products.index') }}">🛍️ Sản phẩm</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('user.cart.index') }}">🛒 Giỏ hàng</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('user.orders.index') }}">📜 Đơn hàng của tôi</a></li>
+      </ul>
+
+      <ul class="navbar-nav">
         @auth
           <li class="nav-item">
             <span class="nav-link">👋 Xin chào, {{ Auth::user()->name }}</span>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('logout') }}"
-             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-              Đăng xuất
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+            <form method="POST" action="{{ route('logout') }}">
               @csrf
+              <button type="submit" class="btn btn-link nav-link">🚪 Đăng xuất</button>
             </form>
           </li>
-        @endauth
-        @guest
+        @else
           <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Đăng ký</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Đăng nhập</a></li>
-        @endguest
-      </ul>
-    </div>
-  </nav>
-
-  <!-- JS -->
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        @endauth
       </ul>
     </div>
   </nav>
@@ -73,8 +63,6 @@
   </div>
 
   <!-- Bootstrap 5 JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
-          integrity="sha384-XUZDqKHgRuGgE58dXc9RtUg+KXG9CvylZulZz6KM99ZoNkJgkHyk0zVpO+93tr9U" 
-          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -11,12 +11,13 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 // User controllers
 use App\Http\Controllers\User\CategoryController as UserCategoryController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\User\CartController;
-use App\Http\Controllers\User\OrderController;
+use App\Http\Controllers\User\OrderController as UserOrderController;
 
 // =====================
 // 🏠 TRANG CHỦ
@@ -70,6 +71,11 @@ Route::middleware(['auth', 'verified', 'admin'])
 
         // CRUD Sản phẩm
         Route::resource('/products', AdminProductController::class);
+
+        // Orders (admin xem/quản lý)
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
     });
 
 // =====================
@@ -104,6 +110,8 @@ Route::middleware(['auth', 'verified'])
         // Xoá toàn bộ giỏ (DELETE /cart/clear)
         Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
-        // Lịch sử đơn hàng (để dành lab sau)
-        // Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        // Orders (user)
+        Route::get('/orders', [UserOrderController::class, 'index'])->name('orders.index');
+        Route::post('/orders', [UserOrderController::class, 'store'])->name('orders.store');
+        Route::get('/orders/{order}', [UserOrderController::class, 'show'])->name('orders.show'); // tuỳ chọn
     });
