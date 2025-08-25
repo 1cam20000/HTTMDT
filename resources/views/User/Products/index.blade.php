@@ -1,5 +1,4 @@
 @extends('layouts.user')
-
 @section('content')
 <div class="container">
     <h2>Danh sách sản phẩm</h2>
@@ -13,7 +12,7 @@
                     <div class="card-body">
                         <h5>{{ $product->name }}</h5>
                         <p>{{ number_format($product->price) }} VNĐ</p>
-                        <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-primary">Xem chi tiết</a>
+                        <a href="{{ route('user.products.show', $product->id) }}" class="btn btn-sm btn-primary">Xem chi tiết</a>
                     </div>
                 </div>
             </div>

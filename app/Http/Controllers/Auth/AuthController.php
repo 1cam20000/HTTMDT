@@ -19,19 +19,19 @@ class AuthController extends Controller
     // Xử lý đăng ký
     public function register(Request $request)
     {
-        $data=$request->validate([
+        $data = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        $user=User::create([
+        $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
             'role'     => 'customer', // mặc định
         ]);
-        
+
         $user->sendEmailVerificationNotification();
 
         Auth::login($user);
@@ -61,7 +61,7 @@ class AuthController extends Controller
             if (Auth::user()->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }
-            return redirect()->route('welcome');
+            return redirect('/user/products');
         }
 
         return back()->with('error', 'Sai email hoặc mật khẩu.');
