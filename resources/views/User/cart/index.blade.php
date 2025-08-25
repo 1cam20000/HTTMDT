@@ -41,8 +41,8 @@
                   <div class="text-muted">No image</div>
                 @endif
               </td>
-              <td>{{ $product->name }}</td>
-              <td>{{ $product->category->name ?? 'Không có danh mục' }}</td>
+              <td>{{ $product->name ?? 'Sản phẩm' }}</td>
+              <td>{{ $product->category->name ?? '-' }}</td>
               <td class="text-center">
                 <form action="{{ route('user.cart.update', $item->id) }}" method="POST" class="d-inline">
                   @csrf
@@ -66,7 +66,7 @@
       </table>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mt-3">
+    <div class="d-flex justify-content-between align-items-start mt-3">
       <a href="{{ route('user.products.index') }}" class="btn btn-outline-primary">⬅️ Tiếp tục mua sắm</a>
 
       <div class="text-end">
@@ -78,7 +78,24 @@
           <button type="submit" class="btn btn-outline-danger me-2">🧹 Xoá giỏ hàng</button>
         </form>
 
-        <a href="#" class="btn btn-success disabled">Thanh toán (sẽ làm ở lab sau)</a>
+        {{-- Form đặt hàng (Lab05) --}}
+        <form action="{{ route('user.orders.store') }}" method="POST" class="mt-3">
+          @csrf
+          <div class="row g-2 align-items-center">
+            <div class="col-auto">
+              <label for="payment_method" class="col-form-label">Phương thức thanh toán:</label>
+            </div>
+            <div class="col-auto">
+              <select name="payment_method" id="payment_method" class="form-select">
+                <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                <option value="online">Thanh toán trực tuyến</option>
+              </select>
+            </div>
+            <div class="col-auto">
+              <button type="submit" class="btn btn-success">Đặt hàng</button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   @else
